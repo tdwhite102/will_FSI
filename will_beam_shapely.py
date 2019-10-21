@@ -13,8 +13,9 @@ from shapely.geometry import  JOIN_STYLE
 
 # Pedro Libraries
 from figures import SIZE, BLUE, GRAY
-from airfoil_module import CST
-from CST_module import calculate_arc_length, dxi_u
+from aeropy.xfoil_module import output_reader
+from aeropy.geometry.airfoil import CST
+from aeropy.CST_2D import calculate_arc_length, dxi_u
 
 # Functions
 def calculate_c(length_0, A, TE_displacement, N1, N2):
@@ -27,7 +28,7 @@ def calculate_c(length_0, A, TE_displacement, N1, N2):
     def f(current_c):
         """Function dependent of c_C and that outputs c_C.""" 
         current_length, err = quad(integrand, 0, 1, args=(A, TE_displacement/current_c, N1, N2))
-        print current_c, current_length
+        print(current_c, current_length)
         return length_0/current_length
 
     current_c = optimize.fixed_point(f, length_0, maxiter=100)

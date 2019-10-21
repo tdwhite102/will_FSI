@@ -11,8 +11,8 @@ import math
 import numpy as np
 from numpy.linalg import inv
 
-from airfoil_module import CST
-from CST_module import *
+from aeropy.geometry.airfoil import CST
+from aeropy.CST_2D import *
 
 # Just as quick trick, to make upper morph I just mirror the image in regards to x
 inverted = False
@@ -57,7 +57,7 @@ def calculate_dependent_shape_coefficients(AC_u1, AC_u2, AC_u3, AC_u4, AC_u5,
     # Now that AC_u0 is known we can calculate the actual chord and AC_l0
     c_C = calculate_c_baseline(c_P, Au_C, Au_P, deltaz/c_P)
     AC_l0 = np.sqrt(c_P/c_C)*Al_P[0]
-    print '0 lower shape coefficient: ',AC_l0
+    print('0 lower shape coefficient: ',AC_l0)
     # Calculate thicknessed and tensor B for the constraint linear system problem
     spar_thicknesses = []
     A0 = AC_u0 + AC_l0
@@ -105,7 +105,7 @@ def calculate_dependent_shape_coefficients(AC_u1, AC_u2, AC_u3, AC_u4, AC_u5,
         xi_upper_children = CST(psi_upper_children, 1., deltasz= [deltaz/2./c_C, deltaz/2./c_C],  Al= Au_C, Au =Au_C)
         xi_upper_children = xi_upper_children['u']
 
-        print xi_upper_children
+        print(xi_upper_children)
         
         #Debugging section
         x = np.linspace(0,1)
@@ -138,8 +138,8 @@ def calculate_dependent_shape_coefficients(AC_u1, AC_u2, AC_u3, AC_u4, AC_u5,
                 #coherent for equations
                 r = i +1
                 F[j][i] = K(r,n)*(psi_lower_children[j]**r)*(1-psi_lower_children[j])**(n-r)
-        print F
-        print f
+        print(F)
+        print(f)
         A_lower = np.dot(inv(F), f)
 
         Al_C = [AC_l0]
@@ -172,17 +172,17 @@ def calculate_shape_coefficients_tracing(A0, tip_displacement, other_points, N1,
     for j in range(1,n+1):
         jj = j - 1
         for i in range(1,n+1):
-            print i,j
+            print(i,j)
             ii = i -1
             T[jj][ii] = K(i,n)* Psi[jj]**i * (1-Psi[jj])**(n-i)
         t[jj] = (Xi[jj] - Psi[jj]*EndThickness)/(Psi[jj]**N1*(1-Psi[jj])**N2) - A0*(1-Psi[jj])**n
-    print T
-    print t
-    print (Xi[ii] - Psi[ii]*EndThickness)/(Psi[ii]*(1-Psi[ii])) - A0
+    print(T)
+    print(t)
+    print((Xi[ii] - Psi[ii]*EndThickness)/(Psi[ii]*(1-Psi[ii])) - A0)
     # Calculate the inverse
     A = np.dot(inv(T), t)
     A = [A0] + list(A.transpose()[0])
-    print A
+    print(A)
     return A
     
 if __name__ == '__main__':
@@ -196,7 +196,7 @@ if __name__ == '__main__':
         tip_displacement = {'x': .1, 'y':1.}
         other_points = {'x': [0.01, -0.03, .05, 0.12], 'y':[0.1, 0.3, .5, 0.8]}
         A0 = -tip_displacement['x']
-        print A0
+        print(A0)
         A = calculate_shape_coefficients_tracing(A0, tip_displacement, other_points, N1, N2)
         
         #plotting
@@ -356,19 +356,19 @@ if __name__ == '__main__':
         plt.show()
         
         if morphing_direction == 'forwards':
-            print c_C, c_P
+            print(c_C, c_P)
             # Calculate initial lengths
             psi_list = [0.] + psi_spars + [c_P]
-            print psi_list
+            print(psi_list)
             initial_lengths = []
             for i in range(len(psi_list)-1):
                 initial_lengths.append(calculate_arc_length(psi_list[i], psi_list[i+1], Al_P, deltaz, c_P))
             # Calculate final lengths
             final_lengths = []
             psi_list = [0.] + psi_flats + [c_C] # In P configuration
-            print psi_list
+            print(psi_list)
             for i in range(len(psi_list)-1):
-                print psi_list[i]*c_P/c_C, psi_list[i+1]*c_P/c_C
+                print(psi_list[i]*c_P/c_C, psi_list[i+1]*c_P/c_C)
                 final_lengths.append(calculate_arc_length(psi_list[i]*c_P/c_C, psi_list[i+1]*c_P/c_C, Al_C, deltaz, c_C))
             # Calculate strains
             strains = []
@@ -376,7 +376,7 @@ if __name__ == '__main__':
                 strains.append((final_lengths[i]-initial_lengths[i])/initial_lengths[i])
             
             for i in range(len(strains)):
-                print 'Initial length: ' + str(initial_lengths[i]) + ', final length: ' + str(final_lengths[i]) + ', strains: ' + str(strains[i])
+                print('Initial length: ' + str(initial_lengths[i]) + ', final length: ' + str(final_lengths[i]) + ', strains: ' + str(strains[i]))
                 
             intersections_x_children.append(c_C)
             intersections_y_children.append(0)
@@ -388,4 +388,4 @@ if __name__ == '__main__':
                                           (intersections_y_parent[i]-intersections_y_parent[i+1])**2)
                 length_children = math.sqrt((intersections_x_children[i]-intersections_x_children[i+1])**2+
                                             (intersections_y_children[i]-intersections_y_children[i+1])**2)
-                print (length_children-length_parent)/length_parent
+                print((length_children-length_parent)/length_parent)

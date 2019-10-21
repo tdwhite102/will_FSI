@@ -19,7 +19,7 @@ def animate(i):
     # x = 5 + 3 * np.sin(np.radians(i))
     # y = 5 + 3 * np.cos(np.radians(i))
     # patch.center = (x, y)
-    print i
+    print(i)
     ax = plt.axes(xlim=(0, 10), ylim=(0, 10))
     patch = plt.Circle((0, i), 0.1*i, fc='y')
     ax.add_patch(patch)
