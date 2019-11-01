@@ -16,6 +16,8 @@ def calculate_c(length_0, A, TE_displacement, N1, N2):
     def f(current_c):
         """Function dependent of c_C and that outputs c_C.""" 
         current_length, err = quad(integrand, 0, 1, args=(A, TE_displacement/current_c, N1, N2))
+        A0 = -TE_displacement/(length_0/current_length)
+        A[0] = A0
         print(current_c, current_length)
         return length_0/current_length
 
@@ -25,7 +27,8 @@ def calculate_c(length_0, A, TE_displacement, N1, N2):
     if abs(length_0 - current_c) < 1e-7:
         return length_0
     #The output is an array so it needs the extra [0]
-    return current_c
+    #Must redefine A as the returned A after calling calculate_c()
+    return current_c, A
     
 # Class coefficients (fixed)
 N1 = 1.
